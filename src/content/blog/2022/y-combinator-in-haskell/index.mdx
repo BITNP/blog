@@ -64,7 +64,14 @@ $$ almost\_pow\ (pow) = \lambda x . <a\ pseudo\ recursive\ exp\ includes\ pow(x)
 
 如果我们拥有这样的 pow 的话，那么将它作为参数传给 almost_pow，那么我们就能得到 pow 了。但是，这个 pow 从哪来呢？先不要着急，我们先从 almost_pow 入手。俗话说，天下没有不散的筵席，也没有不终止的递归（除非你写错了），对于 almost_pow，我们知道在运行一定次数后，它一定会满足中止条件，不再调用 f。而在这个时候，它的第一个参数是什么已经不重要了，毕竟这个参数不会再被使用；我们认为接受了一个任意参数的 almost_pow 在终止条件下等价于我们所求的 pow：
 
-$$ almost\_pow\ <anything>\ 0 = pow\ 0 \\ almost\_pow\ (almost\_pow\ <anything>)\ 1 = pow\ 1 \\ …… \\ almost\_pow\ (almost\_pow\ …(almost\_pow\ <anything>)…)\ n = pow\ n \\ $$
+$$
+\begin{align*}
+  &\text{almost\_pow}\ \langle\text{anything}\rangle\ 0 = \text{pow}\ 0 \\\\
+  &\text{almost\_pow}(\text{almost\_pow}\ \langle\text{anything}\rangle)\ 1 = \text{pow}\ 1 \\\\
+  &\cdots \\\\
+  &\text{almost\_pow}(\text{almost\_pow}(\cdots(\text{almost\_pow}\ \langle\text{anything}\rangle)\cdots))\ n = \text{pow}\ n
+\end{align*}
+$$
 
 现在我们使用 almost_pow 组合得到了等价于 pow 的函数，但这并不值得骄傲：这只是把一个递归函数的递归过程全部展开罢了。让我们重新观察这个近似递归的过程：我们首先将一个参数传给 almost_pow，这个参数并不是我们想要的值（不管是​演算还是函数式编程中，函数和一般的值没有区别），但是对它施用 almost_pow 后返回的值无疑更加接近我们想要的值；我们将返回的值再次作为参数传给 almost_pow，不断重复直至达到某种条件…… 学过数值分析的同学有没有联想到诸如牛顿下山法这样的迭代求解方法？现在我们做的，正是在求 almost_pow 这个函数的不动点。
 
