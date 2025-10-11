@@ -1,14 +1,14 @@
 import type { IconMap, SocialLink, Site } from '@/types'
 
 export const SITE: Site = {
-  title: 'astro-erudite',
+  title: 'BITNP Blog',
   description:
     'astro-erudite is a opinionated, unstyled blogging template—built with Astro, Tailwind, and shadcn/ui.',
-  href: 'https://astro-erudite.vercel.app',
-  author: 'jktrn',
-  locale: 'en-US',
-  featuredPostCount: 2,
-  postsPerPage: 3,
+  href: 'https://blog.bitnp.net',
+  author: 'BITNP',
+  locale: 'zh-CN',
+  featuredPostCount: 3,
+  postsPerPage: 5,
 }
 
 export const NAV_LINKS: SocialLink[] = [
@@ -28,15 +28,19 @@ export const NAV_LINKS: SocialLink[] = [
 
 export const SOCIAL_LINKS: SocialLink[] = [
   {
-    href: 'https://github.com/jktrn',
+    href: 'https://github.com/BITNP',
     label: 'GitHub',
   },
   {
-    href: 'https://twitter.com/enscry',
-    label: 'Twitter',
+    href: 'https://www.bitnp.net',
+    label: 'Website',
   },
   {
-    href: 'mailto:jason@enscribe.dev',
+    href: 'https://space.bilibili.com/89756733',
+    label: 'Bilibili',
+  },
+  {
+    href: 'mailto:webmaster@bitnp.net',
     label: 'Email',
   },
   {
@@ -49,7 +53,7 @@ export const ICON_MAP: IconMap = {
   Website: 'lucide:globe',
   GitHub: 'lucide:github',
   LinkedIn: 'lucide:linkedin',
-  Twitter: 'lucide:twitter',
+  Bilibili: 'lucide:tv',
   Email: 'lucide:mail',
   RSS: 'lucide:rss',
 }
