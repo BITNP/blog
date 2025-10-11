@@ -1,6 +1,5 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
-import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
 import ProjectCard from '@/components/ProjectCard.astro'
 import Layout from '@/layouts/Layout.astro'
@@ -17,28 +16,25 @@ const projects = await getAllProjects()
     <div class="min-w-full">
       <div class="prose mb-8">
         <p class="mt-0">
-          astro-erudite is an opinionated, unstyled static blogging template
-          that prioritizes simplicity and performance, built with <Link
-            href="https://astro.build"
-            external
-            underline>Astro</Link
-          >, <Link href="https://tailwindcss.com" external underline
-            >Tailwind</Link
-          >, and <Link href="https://ui.shadcn.com" external underline
-            >shadcn/ui</Link
-          >. It provides a clean foundation for your content while being
-          extremely easy to customize.
+          网络开拓者协会（Net Pioneer Association of BIT），成立于 1997 年，
+          是目前北京理工大学校内规模最大的校级学生组织之一，同时也是校团委领导的唯一校级
+          IT 类学生组织。
         </p>
         <p>
-          To learn more about the philosophy behind this template, check out the
-          following blog post: <Link
-            href="/blog/the-state-of-static-blogs"
-            underline>The State of Static Blogs in 2024</Link
-          >.
+          本着 “网络无限，开拓不懈” 的精神，网协不断助力校园网络和信息化建设。
+        </p>
+        <p>
+          目前，网协对内开展应用开发、网络维护、计算机维护等教学，对外为校内师生提供校园网络咨询、计算机故障排查等服务；同时运营有
+          NPLive
+          直播平台、国防知识竞赛答题系统等校内平台，并积极参与学校的各大活动。
+        </p>
+        <p>
+          “不只是代码和技术，更有思考和情怀。”
+          本着这样的理念，网协一直在不断增强实力，拓展业务，并更好地为学校广大师生服务。
         </p>
       </div>
 
-      <h2 class="mb-4 text-2xl font-medium">Example Projects Listing</h2>
+      <h2 class="mb-4 text-2xl font-medium">我们的项目</h2>
       <div class="flex flex-col gap-4">
         {projects.map((project) => <ProjectCard project={project} />)}
       </div>
