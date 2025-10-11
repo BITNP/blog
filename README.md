@@ -85,24 +85,24 @@ This is a list of the various technologies used to build this template:
 3. Install dependencies:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 4. Start the development server:
 
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
 5. Open your browser and visit `http://localhost:1234` to get started. The following commands are also available:
 
    | Command            | Description                                                     |
    | ------------------ | --------------------------------------------------------------- |
-   | `npm run start`    | Alias for `npm run dev`                                         |
-   | `npm run build`    | Run type checking and build the project                         |
-   | `npm run preview`  | Previews the built project                                      |
-   | `npm run astro`    | Run Astro CLI commands                                          |
-   | `npm run prettier` | Blanket format all files using [Prettier](https://prettier.io/) |
+   | `pnpm run start`    | Alias for `pnpm run dev`                                         |
+   | `pnpm run build`    | Run type checking and build the project                         |
+   | `pnpm run preview`  | Previews the built project                                      |
+   | `pnpm run astro`    | Run Astro CLI commands                                          |
+   | `pnpm run prettier` | Blanket format all files using [Prettier](https://prettier.io/) |
 
 ## Customization
 
