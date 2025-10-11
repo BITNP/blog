@@ -2,10 +2,12 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "strictNullChecks": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
+    "target": "es2022",
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   }
