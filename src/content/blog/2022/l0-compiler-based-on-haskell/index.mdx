@@ -1,0 +1,292 @@
+---
+title: '一个基于 Haskell 的 L0 语言编译器'
+description: '学过编译原理的同学应该了解，我们所熟悉的编程语言在编译过程中，经历了词法分析、语法分析、代码优化和目标代码生成等阶段，而文法在编译过程中发挥了重要的作用。'
+date: 2022-10-24
+tags: ['haskell', '编译原理']
+authors: ['hellightning']
+---
+
+## 指称语义与 L0 语言
+
+### 何为语义
+
+学过编译原理的同学应该了解，我们所熟悉的编程语言在编译过程中，经历了词法分析、语法分析、代码优化和目标代码生成等阶段，而文法在编译过程中发挥了重要的作用。现在主流语言的编译器大都使用语法制导翻译（Syntax Directed Translation, SDT）的方法，这种翻译方法使用属性文法描述语言，在语法分析过程中嵌入语义动作进而完成源代码的第一遍翻译。这无疑是一种高效且易于理解的翻译方法，对于以下文法：
+
+```
+Stmt ::= Sif | Swhile | Sdecl | Sassign | Sexp 
+Sif ::= 'if' '(' cond ')' Stmt ('else' Stmt)?
+Swhile ::= 'while' '(' cond ')' Stmt
+Sdecl ::= type id ('=' exp)? ';'
+Sassign ::= lval '=' exp ';'
+Sexp ::= exp ';'
+......
+```
+
+程序员应该一眼就能看出来这是 statement 的文法表示。但对计算机而言却并非如此：在计算机眼中，Sif 和 Swhile 仅仅是构建出的语法树的形状不同罢了，条件跳转？循环？想要让程序理解这些，你需要编写相应的 SDT 规则，甚至还需要添加属性节点。复杂的编码之后，似乎你自己也不知道 Sif 和 Swhile 的意义是什么了。
+计算机语言的指称语义描述
+
+指称语义学（Denotational Semantics）就旨在研究将语义和语言实现分开的方法，其主要思想在于从功能上描述各个语法单位的语义，对于每个语法单位确定其功能函数。一个计算机语言的指称语义描述包括：
+
+- 语法域：每个语法域是一个语法单位的集合。
+- 语言的抽象语法：用语法符号严格地定义每个语法单位的语法结构；
+- 语义域：语义函数用到的论域；
+- 语义方程：每个语法单位的功能函数定义将通过多个方程给出（模式匹配）；
+- 预定义函数：在语义方程中将要用到的一些常用的函数。
+
+### L0 语言
+
+今天我们就尝试用指称语义学的方法来构造一个简单的程序语言的编译器，这次要实现的 L0 语言是一个没有声明、只有整型值和布尔值、变量必须定值在前引用在后的简单语言。其语法域由程序、语句、表达式、标识符 id 和整数 n 组成。
+
+L0 的语法定义如下：
+
+```
+P ::= prog S
+S ::= skip | assign id E | if E S1 S2 | while E S | seq S1 S2
+E ::= n | id | E1 + E2 | E1 > E2
+```
+
+## 从语义方程到 Haskell
+
+### 语法元素的语义
+
+对于 L0 语言来说，程序的执行结果也就是程序的状态，是执行结束后环境中所有变量的取值状态。那么对于上述语法，我们可以对主要语法单位进行功能分析：
+
+- P：对 L0 来说，程序的终态是固定的，即 P 的语义就对应一个变量取值状态。
+- S：语句会接收前一个变量取址状态，运行之后将其改变，即输出一个新的变量取值状态，S 的语义对应一个 (变量取值状态 -> 变量取值状态) 的函数；
+- E：表达式的取值同样需要接收变量取值状态，最终将输出一个值。
+
+总结来讲，S 的语义涉及状态的改变，而 P 的语义也就是我们所关心的语义，就是最终状态本身。作者很自然地想到用 State Monad 来描述状态。接下来就会按照从语法到语义的映射，使用 Haskell 编写一个 L0 语言的编译器。
+
+### 从语法元素到数据对象
+
+首先在 Haskell 中定义 L0 的语法。使用 Haskell 自动派生的特性，可以使用 Read TypeClass 省去编译过程中词法分析的过程，使用 Data 描述了 L0 语言语法域的元素。
+
+```haskell
+data Identifier = Identifier {idName :: String }
+    deriving (Show, Eq, Read)
+
+data Expression a   = EVal      a
+                    | EId       Identifier
+                    | EPlus     (Expression a) (Expression a)
+                    | EBigger   (Expression a) (Expression a)
+    deriving (Show, Read)
+
+data Statement a =  SSkip
+                | SAssign   Identifier  (Expression a)
+                | SIf       (Expression a)  (Statement a)   (Statement a)
+                | SWhile    (Expression a)  (Statement a)
+                | SSeq      (Statement a)   (Statement a)
+    deriving (Show, Read)
+
+data Program a = Program (Statement a)
+    deriving (Show, Read)
+```
+
+### 语义到语义方程
+
+还需要定义程序的变量赋值状态。在早期版本我使用列表来描述状态，但显然哈希表是一个更加合理的选择，有精力的读者可以尝试自行替换。另外，这里我需要使用 State Monad 的旧版本定义，因此自行定义并实现了 State Monad。虽然不是本文的重点，但有关于 State Monad 的使用这里有两点提示：
+
+1. 新版本 GHC 中的的 State Monad 使用了单子变换的技巧，因此其底层类型是 `s->(#a, s#)`，不能直接应用（只是我不会用）；
+2. L0 语言中没有单表达式语句，因此所有语句没有产生额外输出，只是返回状态转换函数，因此我一开始错误地使用了 Reader Monad，二者区别在于 Reader 对应的外界环境是不变的，只存在于函数的参数中；而 State 对应的外界环境是变化的，既是参数也是返回二元组的第二个参数。
+
+另外，L0 语言中值域是由整数域和布尔域共同构成的，而除此之外还存在未定义行为，如未赋值就使用的变量，因此需要一个底（_|_）来描述。这里我使用了 Maybe TypeClass，使用 Nothing 来作为底。
+
+```haskell
+data Environment a = Env [(Identifier, a)]
+    deriving (Show)
+
+newtype State s a = State { runState :: s -> (a, s) }
+instance Functor (State s) where
+    fmap f fs = State $ \s -> 
+        let (a, s') = runState fs s 
+        in (f a, s')
+
+instance Applicative (State s) where
+    pure a = State $ \s -> (a, s)
+    f <*> fa = State $ \s ->
+        let (fab, s0) = runState f s
+            (a, s1) = runState fa s0
+        in (fab a, s1)
+
+instance Monad (State s) where
+    return = pure
+    fa >>= f = State $ \s ->
+        let (a, s') = runState fa s
+        in runState (f a) s'
+        
+getIdVal :: Eq a => Identifier -> Environment a -> Maybe a
+getIdVal i (Env ((x, val):xs)) = if x == i then Just val else getIdVal i (Env xs)
+getIdVal i (Env []) = Nothing
+
+setIdVal :: Eq a => Maybe a -> Identifier -> Environment a -> Environment a
+setIdVal (Just val') i' (Env ls) = 
+    let getPId (i, val) = i
+        calc p b = b||(getPId p == i')
+        containI = foldr calc False 
+    in if containI ls
+        then Env $ map (\x ->
+            if i' == getPId x then (i', val') else x) ls
+        else Env $ (i', val'):ls
+setIdVal Nothing _ s = s
+```
+
+要将该语法域的元素映射到语义域，则需要相应的语义方程。主要需要注意的也就是语句的语义方程了，对于语句的每种候选式，语义方程为：
+
+- `stmtSem SSkip`：没啥好说的，没输出也没状态改变；
+- `stmtSem SAssign id value`：直接的状态改变，具体表现为将语句中的键值对对环境中的键值对进行替换，返回新的环境；
+- `stmtSem SIf cond S1 S2`：首先需要根据环境获取条件的布尔值，随后执行对应的分支语句的语义方程 stmtSem s；
+- `stmtSem SWhile cond S` ：等价于 `stmtSem (SIf (cond) (SSeq S (SWhile cond S)) SSkip)`；
+- `stmtSem SSeq S1 S2`：顺序执行的两个语句，语义为将两个语句单独的语义方程组合起来，符合 State Monad 的 bind（>>=）函数定义，因此使用一个 do block 表示。
+
+语义方程定义如下：
+
+```
+-- 可以认为是exp的语义方程，区分了整数和布尔
+getExpVal :: (Num a, Eq a) => Expression a -> Environment a -> Maybe a
+getExpVal (EVal x) _ = Just x
+getExpVal (EId i) env = getIdVal i env
+getExpVal (EPlus x y) env = (+) <$> (getExpVal x env) <*> (getExpVal y env)
+getExpVal _ _ = Nothing
+​
+getBool :: (Num a, Ord a) => Expression a -> Environment a -> Bool
+getBool (EBigger x y) env = 
+    let 
+        bigger (EBigger _ _) _ = False
+        bigger _ (EBigger _ _) = False
+        bigger x' y' = (getExpVal x' env) > (getExpVal y' env)
+    in  bigger x y
+getBool _ _ = False
+​
+stmtSem :: (Ord a, Num a) => Statement a -> State (Environment a) ()
+stmtSem SSkip = State $ \s -> ((), s)
+stmtSem (SAssign i exp) = State $ \s -> ((), setIdVal (getExpVal exp s) i s)
+stmtSem (SIf exp stmt1 stmt2) = State $ \s ->
+    if getBool exp s then runState (stmtSem stmt1) s else runState (stmtSem stmt2) s
+stmtSem (SWhile exp stmt) = State $ \s ->
+    if getBool exp s then runState (stmtSem (SSeq stmt (SWhile exp stmt))) s else ((), s)
+stmtSem (SSeq stmt1 stmt2) = do
+    stmtSem stmt1
+    stmtSem stmt2
+    
+progSem :: (Ord a, Num a) => Program a -> ((), Environment a)
+progSem (Program s) = runState (stmtSem s) (Env [])
+```
+
+## 一些样例
+
+根据 Program 的语义方程定义，可以写出一个简单的程序，这个程序好像有很浓重的 Lisp 风格：
+
+```
+testProg1 :: Program Int
+testProg1 = Program
+                ( SSeq
+                    ( SAssign
+                        (Identifier "a")
+                        (EVal 5)
+                    )
+                    ( SSeq
+                        ( SAssign
+                            (Identifier "b")
+                            ( EPlus
+                                (EId $ Identifier "a") 
+                                (EVal 11)
+                            )
+                        )
+                        ( SSeq
+                            ( SIf
+                                (EBigger 
+                                    (EId $ Identifier "b")
+                                    (EId $ Identifier "a")
+                                )
+                                (SAssign
+                                    (Identifier "a") 
+                                    (EPlus
+                                        (EId $ Identifier "b") 
+                                        (EVal 233)
+                                    )
+                                )
+                                SSkip
+                            )
+                            SSkip
+                        )
+                    )
+                )
+```
+
+为了验证解析器的正确性，我们可以写出一个带有条件分支语句，以及变量重新赋值的程序：
+
+```
+testProg1 :: Program Int
+testProg1 = Program
+                ( SSeq
+                    ( SAssign
+                        (Identifier "a")
+                        (EVal 5)
+                    )
+                    ( SSeq
+                        ( SAssign
+                            (Identifier "b")
+                            ( EPlus
+                                (EId $ Identifier "a") 
+                                (EVal 11)
+                            )
+                        )
+                        ( SSeq
+                            ( SIf
+                                (EBigger 
+                                    (EId $ Identifier "b")
+                                    (EId $ Identifier "a")
+                                )
+                                (SAssign
+                                    (Identifier "a") 
+                                    (EPlus
+                                        (EId $ Identifier "b") 
+                                        (EVal 233)
+                                    )
+                                )
+                                SSkip
+                            )
+                            SSkip
+                        )
+                    )
+                )
+```
+
+显然以上两个程序都定义在语法域中。而语义形式化，也就意味着我们可以直接写出一个定义在语义域中的程序，可读性相对于上面两个程序应该要好一点：
+
+```
+(!=!) = SAssign
+(!.!) = SSeq
+(!+!) = EPlus
+(!>!) = EBigger
+​
+justSem = do
+        stmtSem $ (Identifier "n") !=! (EVal 10)
+        stmtSem $ (Identifier "i") !=! (EVal 0)
+        stmtSem $ (Identifier "sum") !=! (EVal 0)
+        stmtSem $ SWhile    ((EId $ Identifier "n") !>!  (EId $ Identifier "i"))
+                            (   ((Identifier "sum") !=!(EPlus (EId $ Identifier "sum") (EId $ Identifier "i")))
+                                !.!
+                                ((Identifier "i") !=! (EPlus (EId $ Identifier "i") (EVal 1))))
+```
+
+主测试程序如下：
+
+```
+getEnv (_, x) = x
+main = do
+    print $ getEnv $ progSem testProg1
+    print $ getEnv $ progSem testProg2
+    print $ getEnv $ runState justSem (Env [])
+```
+
+测试结果结果如下，观察到运行符合预期。
+
+```
+(base) PS D:\hellightning\Documents\CS-2022-Semantics\l0Lang> runghc L0Lang.hs
+Env [(Identifier {idName = "b"},16),(Identifier {idName = "a"},249)]
+Env [(Identifier {idName = "b"},43),(Identifier {idName = "a"},5)]
+Env [(Identifier {idName = "sum"},45),(Identifier {idName = "i"},10),(Identifier {idName = "n"},10)]
+```
+
+作者对形式语义学了解尚浅，如有错误烦请批评指正。
