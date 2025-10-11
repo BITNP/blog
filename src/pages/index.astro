@@ -14,48 +14,28 @@ const blog = await getRecentPosts(SITE.featuredPostCount)
   <PageHead slot="head" title="Home" />
   <section class="rounded-lg border">
     <div class="flex flex-col space-y-1.5 p-6">
-      <h3 class="text-3xl leading-none font-medium">er·u·dite</h3>
-      <p class="text-muted-foreground text-sm">
-        /ˈer(y)əˌdīt/ &bull; <span class="font-medium">adjective</span>
-      </p>
+      <h3 class="text-3xl leading-none font-medium">To NetPioneers,</h3>
+      <p class="text-muted-foreground text-sm">致初次见面的网络开拓者们，</p>
     </div>
     <div class="p-6 pt-0">
       <p class="text-muted-foreground mb-2 text-sm">
-        astro-erudite is an opinionated, unstyled static blogging template built
-        with <Link
-          href="https://astro.build"
-          class="text-foreground"
-          external
-          underline>Astro</Link
-        >, <Link
-          href="https://tailwindcss.com"
-          class="text-foreground"
-          external
-          underline>Tailwind</Link
-        >, and <Link
-          href="https://ui.shadcn.com"
-          class="text-foreground"
-          external
-          underline>shadcn/ui</Link
-        >. Extraordinarily loosely based on the <Link
-          href="https://astro-micro.vercel.app/"
-          class="text-foreground"
-          external
-          underline>Astro Micro</Link
-        > theme.
+        这里是网络开拓者协会（Net Pioneer Association of
+        BIT）的公共博客，记录着历代开拓者们的点滴记录。
+        可能是技术分享，可能是活动回顾，也可能是一些随笔。
       </p>
-      <p class="text-muted-foreground text-sm">
-        To use this template, check out the <Link
-          href="https://github.com/jktrn/astro-erudite"
+      <p class="text-muted-foreground mb-2 text-sm">
+        如果你是互联网上路过的游人，欢迎你四处浏览，或许你会发现一些有趣的东西，也希望某段文字能帮到你、打动你。
+        好奇的话，也欢迎你 <Link href="/about" class="text-foreground" underline
+          >了解一下我们</Link
+        > 。
+      </p>
+      <p class="text-muted-foreground mb-2 text-sm">
+        如果你是网协的成员，欢迎你也来 <Link
+          href="https://github.com/BITNP/blog"
           class="text-foreground"
-          underline
-          external>GitHub</Link
-        > repository. To learn more about why this template exists, read this blog
-        post: <Link
-          href="/blog/the-state-of-static-blogs"
-          class="text-foreground"
-          underline>The State of Static Blogs in 2024</Link
-        >.
+          external
+          underline>这里</Link
+        > 分享你的故事。
       </p>
     </div>
   </section>
