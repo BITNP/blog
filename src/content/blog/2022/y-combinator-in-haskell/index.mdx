@@ -1,0 +1,168 @@
+---
+title: 'Haskell 中的 Y Combinator'
+description: '由于校园网 22 端口一直有 ssh 爆破攻击，而实验室用户密码为方便一般相对简单，不太安全。为了避免新工作站被爆破植入挖矿病毒，因此要配置防火墙规则，限制 22 端口只能从实验室所在网段访问，而其他网段（包括学校无线网和学校其他位置的有线网）则不能直接访问 22 端口。"'
+date: 2022-10-29
+tags: ['haskell', 'functional-programming']
+authors: ['hellightning']
+---
+
+## 从 1024 开始
+
+这周一是 10 月 24 日（笔者开始写这篇博客是 10 月 28 日），不知道为什么大家把这一天定为了程序员日。群聊里的大家也纷纷刷起了 “\\1024/”、“\\2^10/”、“\\1\<\<10/”。作为一名程序员，我觉得这太不够酷了，不符合我对网协部员的想象，没有技术含量且没有趣味（其实就是想装 x，大家不要打我），于是在下面回复了：
+
+```haskell
+let y f = f (y f) in y (\f x -> if x==0 then 1 else 2 * f (x-1)) 10
+```
+
+嗯，这下就很 Cool 了，Cool 到有点 Cold…… 完全没有人对这个酷炫的表达式作出任何回应。装 x 大失败的我决定写篇博客来挽回颜面，让大家知道这个表达式到底有多 Cooooool。
+
+首先需要说明的是，上面的表达式不是伪代码，更不是魔法咒文，而是一段合法的 Haskell 代码（在下面我们称之为 “1024 表达式”），可以解释运行，得到结果为 1024：
+
+```
+C:\Users\hellightning> ghci
+GHCi, version 8.2.2: http://www.haskell.org/ghc/  :? for help
+Prelude> let y f = f (y f) in y (\f x -> if x==0 then 1 else 2 * f (x-1)) 10
+1024
+```
+
+可能有许多人对 Haskell 的语法不太了解，在这里简单介绍一下上面的表达式用到的语法：
+
+首先，Haskell 中函数是一级公民，你可以认为 Haskell 中一切对象都是函数；因此 Haskell 中函数调用不需要带有括号。为 `y f = f (y f)` 在不影响结合性的前提下添加括号，就是 `y(f) = f(y(f))`，可以看出这是一个函数声明。
+
+let ID = EXP , ... in EXP 是一个带有局部变量的闭包，即后面的表达式 `y (\f x -> if x==0 then 1 else 2 * f (x-1)) 10` 中，`y` 就是我们前面定义的一个局部函数。
+
+最后，我们把目光聚焦到 `\f x -> if x==0 then 1 else 2 * f (x-1)` 上，这是 Haskell 中的 Lambda 表达式，它以反斜杠 \ 开头，声明了一个接收 f、x 两个参数的匿名函数。而 if COND then EXP1 else EXP2 等价于 C 语言中的三目表达式 COND?EXP1:EXP2。
+
+综合上述语法，这个表达式首先定义了一个局部函数 y，然后分别将一个 Lambda 表达式 `\f x -> if x==0 then 1 else 2 * f (x-1)` 和 10 作为参数交给 y，返回 y 函数运行的结果。
+
+看到这里大家应该就能读懂上面的 1024 表达式了，那么本期技术分享就到此结束，感谢大家阅读，如果有问题可以联系…… 才怪，就算搞懂了语法，这个 y 到底是什么玩意？可能有编程经验的同学能看出来，这个 Lambda 表达式的形式很像最容易想到的求幂函数：
+
+```haskell
+f' n = if n==0 then 1 else 2 * f' (n-1)
+f' 10
+```
+
+没错，这就是最正统的递归函数定义方法。那么我们的 1024 表达式中的 Lambda 表达式表达的匿名函数，就是这样一个递归函数 f' 吗？答案是 No，前面我们已经讲过了，在这个匿名函数中，f 和 x 一样是函数的参数，而不是匿名函数本身，所以它并非一个递归函数！现在作者自信地告诉你，只要 n 是个自然数，那么就可以保证：
+
+```
+y (\f x -> if x==0 then 1 else 2 * f (x-1)) n
+==
+f' n
+```
+
+如果作者说的是对的，那么就可以得出结论：将 y 施用在这个 Lambda 表达式上，得到的函数与递归函数 f' 完全等价。你可能还不理解这意味着什么，让我们重新整理一下：我们使用一个莫名其妙的函数 y，将它施用在一个因为匿名性而无法递归的 Lambda 表达式（没有名字的人如何叫自己的名字呢？）上，最后使得它拥有了和递归函数一样强大的能力！大家应该发现了，关键就在这个 y 上。事实上，这个 y 就是逻辑数学巨匠 Haskell Curry（Haskell 语言的 Haskell，Curry 化函数的 Curry）发现的数学函数 Y Combinator，这个函数在计算机科学发展中发挥了重要作用，直接启发了我们每天都在使用的 for 循环和 while 循环。
+
+## 点石成金的贤者之石 ——Y Combinator
+
+先让我们来看一下 Haskell Curry 的 Y Combinator 是怎么得到的。假设非递归函数为 almost_pow2，所求的递归函数为 pow，那么有（这里使用类似​演算的写法来表示函数）：
+
+$$almost\_pow = \lambda f . \lambda x . <a\ pseudo\ recursive\ exp\ includes\ f(x)>$$
+
+而如果将 f 作为第一个参数传给 almost_f，则会将表达式中的 f 全部替换为 pow，这个时候得到的就是我们所求的正确的递归函数：
+
+$$ almost\_pow\ (pow) = \lambda x . <a\ pseudo\ recursive\ exp\ includes\ pow(x)>\\ almost\_pow\ (pow) = pow $$
+
+如果我们拥有这样的 pow 的话，那么将它作为参数传给 almost_pow，那么我们就能得到 pow 了。但是，这个 pow 从哪来呢？先不要着急，我们先从 almost_pow 入手。俗话说，天下没有不散的筵席，也没有不终止的递归（除非你写错了），对于 almost_pow，我们知道在运行一定次数后，它一定会满足中止条件，不再调用 f。而在这个时候，它的第一个参数是什么已经不重要了，毕竟这个参数不会再被使用；我们认为接受了一个任意参数的 almost_pow 在终止条件下等价于我们所求的 pow：
+
+$$ almost\_pow\ <anything>\ 0 = pow\ 0 \\ almost\_pow\ (almost\_pow\ <anything>)\ 1 = pow\ 1 \\ …… \\ almost\_pow\ (almost\_pow\ …(almost\_pow\ <anything>)…)\ n = pow\ n \\ $$
+
+现在我们使用 almost_pow 组合得到了等价于 pow 的函数，但这并不值得骄傲：这只是把一个递归函数的递归过程全部展开罢了。让我们重新观察这个近似递归的过程：我们首先将一个参数传给 almost_pow，这个参数并不是我们想要的值（不管是​演算还是函数式编程中，函数和一般的值没有区别），但是对它施用 almost_pow 后返回的值无疑更加接近我们想要的值；我们将返回的值再次作为参数传给 almost_pow，不断重复直至达到某种条件…… 学过数值分析的同学有没有联想到诸如牛顿下山法这样的迭代求解方法？现在我们做的，正是在求 almost_pow 这个函数的不动点。
+
+让我们创造一个函数，让它自动完成这个迭代的过程：
+
+$$ Y = \lambda f. (\lambda x. f (x x)) (\lambda x. f (x x)) $$
+
+这是什么玩意？因为我也是一边写文章一边查 wiki，其实看到这个式子我也懵了一下。但是别怕，让我们用 almost_pow 试一试：
+
+$$
+\begin{align*}
+& Y\, \text{almost\_pow} = (\lambda f. (\lambda x. f (x x)) (\lambda x. f (x x)))\, \text{almost\_pow} \\
+& = (\lambda x.\text{almost\_pow}(x x))(\lambda x.\text{almost\_pow}(x x)) \\
+& = \text{almost\_pow}((\lambda x.\text{almost\_pow}(x x))(\lambda x.\text{almost\_pow}(x x))) \\
+& = \text{almost\_pow}(\text{almost\_pow}(\cdots \text{almost\_pow}((\lambda x.\text{almost\_pow}(x x))(\lambda x.\text{almost\_pow}(x x)))\cdots)) \\
+\end{align*}
+$$
+
+虽然看起来很怪异，实际上这个 Y 函数的的作用就是将接收的参数 f 不断施用给 f 自身罢了，也就是我们要的自动迭代。那么终止呢？让我们回想上面的式子：
+
+$$almost\_pow\ (almost\_pow\ …(almost\_pow\ (<anything>))…)\ n = pow\ n \\almost\_pow\ (almost\_pow\ …(almost\_pow\ ((\lambda x.almost\_pow(xx))(\lambda x.almost\_pow(xx))))…)\ n = pow\ n$$
+
+也就是说虽然将 Y 施用给 `almost_pow` 得到的是一个无穷的表达式，但当这个表达式再额外接收一个参数 n 达到饱和时，`almost_pow` 会自动在迭代 n 次后终止，忽略后续的迭代 —— 因为我们抛弃了这个参数。
+
+完美！就这样，我们得到了点石成金的 Y Combinator。这里我是从顺推的方向推出来的，有点像一次思维马拉松；但这里其实有一种更精妙而简洁的思路，有精力的同学可以作为拓展阅读。
+
+可惜，这样的写法只能在 Lambda 演算中成立，也许在 LISP 中也可以正确编译，而在 Haskell 中，定义这样的 y 会在编译器错误：
+
+```
+Prelude> let y = \f -> (\x -> f (x x)) (\x -> f (x x))
+<interactive>:2:27: error:
+    ? Occurs check: cannot construct the infinite type: t0 ~ t0 -> t
+      Expected type: t0 -> t
+        Actual type: (t0 -> t) -> t
+    ? In the first argument of ‘x’, namely ‘x’
+      In the first argument of ‘f’, namely ‘(x x)’
+      In the expression: f (x x)
+    ? Relevant bindings include
+        x :: (t0 -> t) -> t (bound at <interactive>:2:17)
+        f :: t -> t (bound at <interactive>:2:10)
+        y :: (t -> t) -> t (bound at <interactive>:2:5)
+​
+<interactive>:2:43: error:
+    ? Occurs check: cannot construct the infinite type: t0 ~ t0 -> t
+    ? In the first argument of ‘x’, namely ‘x’
+      In the first argument of ‘f’, namely ‘(x x)’
+      In the expression: f (x x)
+    ? Relevant bindings include
+        x :: t0 -> t (bound at <interactive>:2:33)
+        f :: t -> t (bound at <interactive>:2:10)
+        y :: (t -> t) -> t (bound at <interactive>:2:5)
+```
+
+原因在于 Haskell 是一门静态强类型语言，对于上面定义的 y，GHC 编译器会自动推导其中各个变量的类型，发现其在任何情况下都不会饱和（饱和指函数接收到了所有的参数），注定是一个无限的值。那么没有其他办法了吗？当然有啦，要不然 1024 表达式是怎么得到正确的值的呢？让我们观察 1024 表达式中的 y：
+
+```haskell
+y f = f (y f)
+```
+
+对于施用，我们可以将其展开：
+
+$$Y\ almost\_pow = almost\_pow (Y\ almost\_pow)= almost\_pow(…almost\_pow(Y\ almost\_pow) )$$
+
+可以得知这里的 y 和我们之前找到的 Y Combinator 有相同的效果。为什么这里的 y 就可以通过 GHC 的编译呢？答案是这里 f 明确被推导为 t -> t 类型的函数，而 y 则被推导成了 (t -> t) -> t 类型的函数，实际运算过程中可能会出现无限，但也只会是无限递归，而不会产生始终无法得到饱和的状况；有了 Haskell 的惰性系统，这样的无限递归是可以接受乃至被广泛使用的 —— 不明白什么是惰性的，请回想之前我们是如何抛弃注定不会被使用的参数的。
+
+## Don’t Say “Lazy”
+
+我们已经走了很长的路，但这还不是终点。上面定义的 y 完美符合了我们的需求，但是其本身是一个有名字的递归函数，而不是匿名对象。那么有没有可能，我们可以在严格类型系统的 Haskell 中使用 Lambda 表达式，得到我们需要的 Y Combinator 呢？
+
+### Unsafe.Coerce
+
+最早的定义无法通过编译，主要问题出在了 x 的自我施用上，使类型推导系统在推导 x 的类型的时候产生了递归：将 x 施用给 x，那么 x 自身的类型同时会是自身第一个参数的类型。不就是一个类型检查系统吗？看我用 unsafeCoerce 把它推回去！
+
+```haskell
+Prelude> import Unsafe.Coerce
+Prelude Unsafe.Coerce> y = \f -> (\x -> f (unsafeCoerce x x)) (\x -> f (unsafeCoerce x x))
+Prelude Unsafe.Coerce> y (\f n -> if n==0 then 1 else 2 * f (n-1)) 10
+1024
+```
+
+当然这种写法没有使用惰性求值、完全使用匿名函数实现了 y，但正如 unsafeCoerce 的名字，这个魔法的强制类型转换函数绕过了严格求值系统、产生了额外的不安全风险。
+
+利用 newtype 绕过类型检查
+反正我们要做的事情就是骗过 GHC，实现一个递归类型，有没有什么更优雅的方法呢？Haskell 虽然对函数的类型检查很严格，但对于自定义的代数数据类型（data 或 newtype 都可以），要想完全禁止递归定义无疑会大大影响语言的表达能力。我们可以利用这一点：
+
+```haskell
+newtype Mu a = Mu {unMu :: Mu a -> a}
+y = \f -> (\x -> x $ Mu x) (\x -> f . (unMu x $ x)
+​
+main = do
+    print $ y (\f n -> if n==0 then 1 else 2 * f(n-1)) 10
+```
+
+这里的 Mu a 就是我们需要的 x 的递归类型。作为函数的 x 需要的类型是 Mu a -> a，需要一次拆包；作为参数的 x 需要的类型是 Mu a，需要一次包装。无疑二者指代的 x 是同一个，但通过类型的包装，GHC 这次终于给我们亮了绿灯。
+
+执行以上代码，结果仍然是 1024。
+
+写在最后
+作者写这篇博客用了一天，读这篇博客可能会用去更多的时间（请将责任归于作者贫瘠的表达能力）。那么，花了这么长时间，读 / 写这篇博客有什么意义吗？其实答案我已经在开头提过了 —— 因为这很酷、写出来让我很爽，除此之外几乎没有什么意义。如果你要成为一名码农，知道 Y Combinator 对你写 CRUD 逻辑可以说没有任何帮助；Haskell 在工业界应用也少之又少，有这时间不如学一学最潮最 in 的 Rust。
+
+但是如果，你能觉得这篇文章很酷，在这不实用中感到了一点快乐，无穷递归的求知欲稍微克服了一点惰性，那这篇文章可能也不至于一文不值吧。
