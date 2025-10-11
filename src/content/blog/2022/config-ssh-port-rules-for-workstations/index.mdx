@@ -1,0 +1,51 @@
+---
+title: '为实验室工作站配置ssh端口访问规则'
+description: '由于校园网 22 端口一直有 ssh 爆破攻击，而实验室用户密码为方便一般相对简单，不太安全。为了避免新工作站被爆破植入挖矿病毒，因此要配置防火墙规则，限制 22 端口只能从实验室所在网段访问，而其他网段（包括学校无线网和学校其他位置的有线网）则不能直接访问 22 端口。"'
+date: 2022-11-04
+tags: ['maintainance']
+authors: ['everything411']
+---
+
+实验室买了新的工作站，需要配置 ssh 远程访问。
+
+由于校园网 22 端口一直有 ssh 爆破攻击，而实验室用户密码为方便一般相对简单，不太安全。为了避免新工作站被爆破植入挖矿病毒，因此要配置防火墙规则，限制 22 端口只能从实验室所在网段访问，而其他网段（包括学校无线网和学校其他位置的有线网）则不能直接访问 22 端口。
+
+限制了 22 之后，想要从其他位置访问则需要另外开一个端口接受 ssh 连接，因此将 8022 端口的流量转发至 22 端口，作为全校园网都可用的 ssh 服务端口。
+
+由于系统用了 Ubuntu 22.04，想要使用 nftables 而不是 iptables 来配置防火墙规则。
+
+我们想要实现端口转发，因此需要在 prerouting 上配置 <abbr title="网络地址翻译">NAT</abbr> 端口转发规则，同时我们想要拒绝 22 端口其他网段的流量，这个过程应该发生在 NAT 端口转发之前，因此过滤规则也应该配置在 prerouting 上，且优先级应该高于端口转发规则。
+
+整个流程都实现在 prerouting 上，在 raw 优先级（-300）上拒绝 0.0.0.0/0 的 22 端口入站流量，只允许 10.1.112.0/23 网段的入流量；此后在 dstnat 优先级（-150）上做转发，将 8022 端口转发至 22 端口。
+
+最终写成了如下的 nftables 规则。
+
+```nftables
+!/usr/sbin/nft -f
+flush ruleset
+ 
+table inet filter {
+  chain prerouting {
+    type filter hook prerouting priority raw;
+    ip saddr 10.1.112.0/23 tcp dport 22 accept;
+    ip saddr 0.0.0.0/0 tcp dport 22 drop;
+  }
+  chain input {
+    type filter hook input priority 0;
+  }
+  chain forward {
+    type filter hook forward priority 0;
+  }
+  chain output {
+    type filter hook output priority 0;
+  }
+}
+
+table inet nat {
+  chain prerouting {
+    type nat hook prerouting priority dstnat;
+    policy accept;
+    tcp dport 8022 redirect to :22;
+  }
+}
+```
