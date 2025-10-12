@@ -103,7 +103,11 @@ export async function getPostsByAuthor(
   authorId: string,
 ): Promise<CollectionEntry<'blog'>[]> {
   const posts = await getAllPosts()
-  return posts.filter((post) => post.data.authors?.includes(authorId))
+  return posts.filter((post) =>
+    post.data.authors
+      ?.map(author => author.toLowerCase())
+      .includes(authorId.toLowerCase())
+  )
 }
 
 export async function getPostsByTag(
@@ -195,10 +199,10 @@ export async function parseAuthors(authorIds: string[] = []) {
   if (!authorIds.length) return []
 
   const allAuthors = await getAllAuthors()
-  const authorMap = new Map(allAuthors.map((author) => [author.id, author]))
+  const authorMap = new Map(allAuthors.map((author) => [author.id.toLowerCase(), author]))
 
   return authorIds.map((id) => {
-    const author = authorMap.get(id)
+    const author = authorMap.get(id.toLowerCase())
     return {
       id,
       name: author?.data?.name || id,
