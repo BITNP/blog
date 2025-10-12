@@ -10,44 +10,110 @@ import { Icon } from 'astro-icon/components'
   title="Toggle theme"
   className="-my-2 -me-2 size-8"
 >
-  <Icon name="lucide:sun" class="size-4 dark:hidden" />
-  <Icon name="lucide:moon" class="absolute hidden size-4 dark:block" />
+  <Icon name="lucide:sun" class="sun-icon absolute size-4" />
+  <Icon name="lucide:moon" class="moon-icon absolute hidden size-4" />
+  <Icon name="lucide:sun-moon" class="auto-icon absolute hidden size-4" />
   <span class="sr-only">Toggle theme</span>
 </Button>
 
 <script is:inline data-astro-rerun>
-  (() => {
-    const theme = (() => {
-      const stored = localStorage?.getItem('theme') ?? ''
-      if (['dark', 'light'].includes(stored)) return stored
+  ;(() => {
+    const getSystemTheme = () => {
       return window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light'
-    })()
+    }
 
-    document.documentElement.setAttribute('data-theme', theme)
+    const stored = localStorage?.getItem('theme') ?? ''
+    const theme = ['dark', 'light', 'auto'].includes(stored) ? stored : 'auto'
+
+    const actualTheme = theme === 'auto' ? getSystemTheme() : theme
+
+    document.documentElement.setAttribute('data-theme', actualTheme)
+    document.documentElement.setAttribute('data-theme-mode', theme)
     window.localStorage.setItem('theme', theme)
   })()
 </script>
 
 <script>
-  function handleToggleClick() {
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
+  }
+
+  function updateThemeIcons(mode: string) {
+    const sunIcon = document.querySelector('.sun-icon')
+    const moonIcon = document.querySelector('.moon-icon')
+    const autoIcon = document.querySelector('.auto-icon')
+
+    // 隐藏所有图标
+    sunIcon?.classList.add('hidden')
+    moonIcon?.classList.add('hidden')
+    autoIcon?.classList.add('hidden')
+
+    // 根据模式显示对应图标
+    if (mode === 'light') {
+      sunIcon?.classList.remove('hidden')
+    } else if (mode === 'dark') {
+      moonIcon?.classList.remove('hidden')
+    } else if (mode === 'auto') {
+      autoIcon?.classList.remove('hidden')
+    }
+  }
+
+  function applyTheme(mode: string) {
     const element = document.documentElement
-    const currentTheme = element.getAttribute('data-theme')
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
+    const actualTheme = mode === 'auto' ? getSystemTheme() : mode
 
     element.classList.add('[&_*]:transition-none')
-    element.setAttribute('data-theme', newTheme)
+    element.setAttribute('data-theme', actualTheme)
+    element.setAttribute('data-theme-mode', mode)
     window.getComputedStyle(element).getPropertyValue('opacity')
 
     requestAnimationFrame(() => {
       element.classList.remove('[&_*]:transition-none')
     })
 
-    localStorage.setItem('theme', newTheme)
+    updateThemeIcons(mode)
+    localStorage.setItem('theme', mode)
+  }
+
+  function handleToggleClick() {
+    const element = document.documentElement
+    const currentMode = element.getAttribute('data-theme-mode') || 'auto'
+
+    // 循环切换: light -> dark -> auto -> light
+    let newMode
+    if (currentMode === 'light') {
+      newMode = 'dark'
+    } else if (currentMode === 'dark') {
+      newMode = 'auto'
+    } else {
+      newMode = 'light'
+    }
+
+    applyTheme(newMode)
   }
 
   function initThemeToggle() {
+    // 初始化图标显示
+    const currentMode =
+      document.documentElement.getAttribute('data-theme-mode') || 'auto'
+    updateThemeIcons(currentMode)
+
+    // 监听系统主题变化
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleSystemThemeChange = () => {
+      const currentMode =
+        document.documentElement.getAttribute('data-theme-mode')
+      if (currentMode === 'auto') {
+        applyTheme('auto')
+      }
+    }
+
+    mediaQuery.addEventListener('change', handleSystemThemeChange)
+
     document
       .getElementById('theme-toggle')
       ?.addEventListener('click', handleToggleClick)
@@ -56,17 +122,8 @@ import { Icon } from 'astro-icon/components'
   initThemeToggle()
 
   document.addEventListener('astro:after-swap', () => {
-    const storedTheme = localStorage.getItem('theme') || 'light'
-    const element = document.documentElement
-
-    element.classList.add('[&_*]:transition-none')
-    window.getComputedStyle(element).getPropertyValue('opacity')
-    element.setAttribute('data-theme', storedTheme)
-
-    requestAnimationFrame(() => {
-      element.classList.remove('[&_*]:transition-none')
-    })
-
+    const storedTheme = localStorage.getItem('theme') || 'auto'
+    applyTheme(storedTheme)
     initThemeToggle()
   })
 </script>
