@@ -15,9 +15,28 @@ export function formatDate(date: Date) {
 
 export function calculateWordCountFromHtml(
   html: string | null | undefined,
+  locale: string,
 ): number {
   if (!html) return 0
   const textOnly = html.replace(/<[^>]+>/g, '')
+
+  if (typeof Intl.Segmenter === 'function') {
+    try {
+      const segmenter = new Intl.Segmenter(locale, { granularity: 'word' })
+      const segments = segmenter.segment(textOnly)
+
+      let wordCount = 0
+      for (const segment of segments) {
+        // exclude punctuation and spaces
+        if (segment.isWordLike) {
+          wordCount++
+        }
+      }
+      return wordCount
+    } catch (e) {
+      // fallback to simple split
+    }
+  }
   return textOnly.split(/\s+/).filter(Boolean).length
 }
 
