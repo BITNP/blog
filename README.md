@@ -1,256 +1,179 @@
-![Showcase Card](/public/static/twitter-card.png)
+# BITNP 博客
 
 <div align="center">
-
-## astro-erudite
 
 ![Stargazers]
 [![License]](LICENSE)
 
 </div>
 
-astro-erudite is an opinionated, unstyled static blogging template built with [Astro](https://astro.build/), [Tailwind](https://tailwindcss.com/), and [shadcn/ui](https://ui.shadcn.com/). Extraordinarily loosely based off the [Astro Micro](https://astro-micro.vercel.app/) theme by [trevortylerlee](https://github.com/trevortylerlee).
-
-| ![Preview 1](/public/static/preview-1.png) | ![Preview 2](/public/static/preview-2.png) |
-| ------------------------------------------ | ------------------------------------------ |
-| ![Preview 3](/public/static/preview-3.png) | ![Preview 4](/public/static/preview-4.png) |
-
-> [!NOTE]
-> To learn more about why this template exists, read [The State of Static Blogs in 2024](https://astro-erudite.vercel.app/blog/the-state-of-static-blogs), where I share my take on what constitutes a great blogging template and my goals while developing this one.
+欢迎来到 BITNP 博客项目！这是一个使用 [Astro](https://astro.build/) 构建的静态博客，旨在为社区成员提供分享技术文章和见解的平台。
 
 ---
 
-## Community Examples
+## 如何贡献内容
 
-Below are some fantastic examples of websites based on this template. If you wish to add your site to this list, open a pull request!
+### 参与博客写作的步骤
 
-| Site                                                 | Author                                                 | Description/Features                                                                                                                                      | Source                                                  |
-| ---------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| [enscribe.dev](https://enscribe.dev)                 | [@jktrn](https://github.com/jktrn)                     | Heavily modified bento-style homepage with client interactivity, with custom MDX components!                                                              | [→](https://github.com/jktrn/enscribe.dev)              |
-| [emile.sh](https://emile.sh)                         | [@echoghi](https://github.com/echoghi)                 | A minimalist personal blog using the [flexoki](https://stephango.com/flexoki) theme                                                                       | [→](https://github.com/echoghi/v5)                      |
-| [decentparadox.me](https://decentparadox.me)         | [@decentparadox](https://github.com/decentparadox)     | A heavily customized personal portfolio with a sci-fi theme!                                                                                              | [→](https://github.com/decentparadox/decentparadox.me)  |
-| [flocto.github.io](https://flocto.github.io/)        | [@flocto](https://github.com/flocto)                   | A slightly modified personal blog                                                                                                                         | [→](https://github.com/flocto/flocto.github.io)         |
-| [dumbprism.me](https://www.dumbprism.me/)            | [@dumbprism](https://github.com/dumbprism)             | A customized portfolio inspired by enscribe's bento grid style adding my gist of UI                                                                       | [→](https://github.com/dumbprism/dumbprism-portfolio)   |
-| [hyuki.dev](https://hyuki.dev/)                      | [@snow0406](https://github.com/snow0406)               | A minimalist blog with a blue color scheme, focusing on simplicity!                                                                                       | [→](https://github.com/Snow0406/hyuki.dev)              |
-| [ldd.cc](https://ldd.cc/)                            | [@xJoyLu](https://github.com/xjoylu)                   | The cream of the idlers.                                                                                                                                  | [→](https://ldd.cc/)                                    |
-| [rezarezvan.com](https://rezarezvan.com/)            | [@rezaarezvan](https://github.com/rezaarezvan)         | A academic blog with personal touches :).                                                                                                                 | [→](https://rezarezvan.com/)                            |
-| [blog.z0x.ca](https://blog.z0x.ca/)                  | [@z0x](https://z0x.ca)                                 | _Very_ minimal version of erudite, stripping it down to the bare essentials                                                                               | [→](https://git.z0x.ca/z0x/blog.z0x.ca/)                |
-| [angelaytchan.net](https://angelaytchan.net/)        | [@wispyplant](https://github.com/wispyplant)           | An artist portfolio and activities archive                                                                                                                | [→](https://github.com/wispyplant/wispyplant.github.io) |
-| [kaezr.xyz](https://kaezr.xyz/)                      | [@kaezrr](https://github.com/kaezrr)                   | A minimal porfolio and blog website with slight tweaks to the original.                                                                                   | [→](https://github.com/kaezrr/webfolio)                 |
-| [worldwidewong](https://worldwidewong.vercel.app)    | [@brendanwong-web](https://github.com/brendanwong-web) | A slightly funky portfolio, blog, and resume site with an added photo gallery.                                                                            | [→](https://github.com/brendanwong-web/worldwidewong)   |
-| [bgajjala.dev](https://bgajjala.dev)                 | [@bgajjala8](https://github.com/bgajjala8)             | A minimal blog featuring a paper-color inspired color scheme                                                                                              | [→](https://github.com/bgajjala8/bgajjala.dev)          |
-| [ankitz007.vercel.app](https://ankitz007.vercel.app) | [@ankitz007](https://github.com/ankitz007)             | A personal blog with a few modifications and updates to the original.                                                                                     | [→](https://github.com/ankitz007/webfolio)              |
-| [sadman.ca](https://sadman.ca)                       | [@sadmanca](https://github.com/sadmanca)               | A customized personal blog with: Goodreads reading progress tracker, SVG thumbnails, custom heading styles, and dynamic media grids (books, movies, etc.) | [→](https://github.com/sadmanca/blogv3)                 |
-| [marcel-to.vercel.app](https://marcel-to.vercel.app) | [@Marcel-TO](https://github.com/Marcel-TO)             | A content‑driven personal portfolio showcasing software projects, deep–dive blog series and multi-part project documentation.                             | [→](https://github.com/Marcel-TO/marcel-to-website)     |
+1. **Fork 仓库**
+   
+   点击页面右上角的 "Fork" 按钮，在你的 GitHub 账户下创建一个仓库副本。
 
-## Features
-
-- [Astro](https://astro.build/)'s [Islands](https://docs.astro.build/en/concepts/islands/) architecture for selective hydration and client-side interactivity while maintaining fast static site rendering.
-- [shadcn/ui](https://ui.shadcn.com/) with [Tailwind](https://tailwindcss.com/) color conventions for automatic light and dark theme styling. Features accessible, theme-aware UI components for navigation, buttons, and more.
-- [Expressive Code](https://expressive-code.com/) for enhanced code block styling, syntax highlighting, and code block titles.
-- Blog authoring with [MDX](https://mdxjs.com/) for component-rich content and $\LaTeX$ math rendering via [KaTeX](https://katex.org/).
-- Astro [View Transitions](https://docs.astro.build/en/guides/view-transitions/) in <abbr title="Single Page Application">SPA</abbr> mode for smooth route animations.
-- SEO optimization with granular metadata and [Open Graph](https://ogp.me/) tag control for each post.
-- [RSS](https://en.wikipedia.org/wiki/RSS) feed and sitemap generation.
-- Subpost support for breaking long content into digestible parts and organizing related series.
-- Author profiles with a dedicated authors page and multi-author post support.
-- Project tags with a dedicated tags page for post categorization and discovery.
-- Custom Callout component variants for enhanced technical writing.
-
-## Technology Stack
-
-This is a list of the various technologies used to build this template:
-
-| Category   | Technology Name                                                                            |
-| ---------- | ------------------------------------------------------------------------------------------ |
-| Framework  | [Astro](https://astro.build/)                                                              |
-| Styling    | [Tailwind](https://tailwindcss.com)                                                        |
-| Components | [shadcn/ui](https://ui.shadcn.com/)                                                        |
-| Content    | [MDX](https://mdxjs.com/)                                                                  |
-| Codeblocks | [Expressive Code](https://expressive-code.com/), [Shiki](https://github.com/shikijs/shiki) |
-| Graphics   | [Figma](https://www.figma.com/)                                                            |
-| Deployment | [Vercel](https://vercel.com)                                                               |
-
-## Getting Started
-
-1. Hit &ldquo;Use this template&rdquo;, the big green button on the top right, to create a new repository in your own GitHub account with this template.
-
-2. Clone the repository:
-
+2. **克隆仓库**
+   
    ```bash
-   git clone https://github.com/[YOUR_USERNAME]/[YOUR_REPO_NAME].git
-   cd [YOUR_REPO_NAME]
+   git clone https://github.com/[YOUR_USERNAME]/bitnp-blog.git
+   cd bitnp-blog
    ```
 
-3. Install dependencies:
-
+3. **安装依赖**
+   
    ```bash
    pnpm install
    ```
 
-4. Start the development server:
-
+4. **启动开发服务器**
+   
    ```bash
    pnpm run dev
    ```
+   
+   访问 `http://localhost:1234` 开始预览。
 
-5. Open your browser and visit `http://localhost:1234` to get started. The following commands are also available:
+### 可用命令
 
-   | Command            | Description                                                     |
-   | ------------------ | --------------------------------------------------------------- |
-   | `pnpm run start`    | Alias for `pnpm run dev`                                         |
-   | `pnpm run build`    | Run type checking and build the project                         |
-   | `pnpm run preview`  | Previews the built project                                      |
-   | `pnpm run astro`    | Run Astro CLI commands                                          |
-   | `pnpm run prettier` | Blanket format all files using [Prettier](https://prettier.io/) |
+| 命令                | 描述                                    |
+| ------------------ | -------------------------------------- |
+| `pnpm run start`    | 启动开发服务器的别名                      |
+| `pnpm run build`    | 类型检查并构建项目                       |
+| `pnpm run preview`  | 预览构建后的项目                        |
+| `pnpm run astro`    | 运行 Astro CLI 命令                     |
 
-## Customization
+## 添加个人信息
 
-### Site Configuration
+### 创建作者档案
 
-Edit the `src/consts.ts` file to update your site's metadata, navigation links, and social links:
+在开始写作前，需要先添加你的个人信息：
 
-```ts
-export const SITE: Site = {
-  title: 'astro-erudite',
-  description: // ...
-  href: 'https://astro-erudite.vercel.app',
-  featuredPostCount: 2,
-  postsPerPage: 3,
-}
+1. 在 `src/content/authors/` 目录下创建一个以你的用户名命名的 Markdown 文件（如 `zhang-san.md`）
 
-export const NAV_LINKS: SocialLink[] = [
-  {
-    href: '/blog',
-    label: 'blog',
-  },
-  // ...
-]
-
-export const SOCIAL_LINKS: SocialLink[] = [
-  {
-    href: 'https://github.com/jktrn',
-    label: 'GitHub',
-  },
-  // ...
-]
-```
-
-### Color Palette
-
-Colors are defined in `src/styles/global.css` in [OKLCH format](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch), using the [shadcn/ui](https://ui.shadcn.com/) convention:
-
-```css
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-}
-
-[data-theme='dark'] {
-  /* ... */
-}
-```
-
-### Favicons
-
-Favicons are generated using [RealFaviconGenerator](https://realfavicongenerator.net/). To adjust the favicons, replace the files in the `public/` directory (such as `favicon.ico`, `favicon.svg`, `apple-touch-icon.png`, etc.) with your own. After updating the favicon files, you'll also need to adjust the references in `src/components/Favicons.astro` to match your new favicon filenames and paths:
-
-```html
-<!-- Replace these with the generated meta tags -->
-<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="shortcut icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-<meta name="apple-mobile-web-app-title" content="astro-erudite" />
-<link rel="manifest" href="/site.webmanifest" />
-```
-
-## Adding Content
-
-### Blog Posts
-
-Add new blog posts as MDX files in the `src/content/blog/` directory. Use the following frontmatter structure:
+2. 使用以下模板填写个人信息：
 
 ```yml
 ---
-title: 'Your Post Title'
-description: 'A brief description of your post!'
+name: '张三'
+pronouns: 'he/him' # 可选
+avatar: 'https://github.com/zhangsan.png' # 或使用 Gravatar
+bio: '计算机科学专业学生，热爱开源技术。'  # 可选
+website: 'https://zhangsan.dev' # 可选
+github: 'https://github.com/zhangsan' # 可选
+mail: 'zhangsan@example.com' # 可选
+---
+```
+
+## 撰写博客文章
+
+### 创建博客文章
+
+在 `src/content/blog/` 目录下创建新的 MDX 文件。推荐按年份组织文章，使用以下结构：
+
+```
+src/content/blog/
+└── 2025/
+    └── my-awesome-post/
+        ├── index.mdx
+        └── assets/
+            └── image.png
+```
+
+文章 frontmatter 结构：
+
+```yml
+---
+title: '你的文章标题'
+description: '文章的简短描述！'
 date: 2024-01-01
-tags: ['tag1', 'tag2']
-image: './image.png'
-authors: ['author1', 'author2']
+tags: ['技术', '教程']
+image: './assets/image.png' # 可选，标题图
+authors: ['zhang-san']  # 使用你在 authors 目录下创建的文件名
 draft: false
 ---
 ```
 
-The blog post schema is defined as follows:
+### 博客文章字段说明
 
-| Field         | Type (Zod)      | Requirements                                                                                                                                                                    | Required |
-| ------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| `title`       | `string`        | Should be ≤60 characters.                                                                                                                                                       | Yes      |
-| `description` | `string`        | Should be ≤155 characters.                                                                                                                                                      | Yes      |
-| `date`        | `coerce.date()` | Must be in `YYYY-MM-DD` format.                                                                                                                                                 | Yes      |
-| `order`       | `number`        | Sort order for subposts with the same `date`. Defaults to `0` if not provided.                                                                                                  | Optional |
-| `image`       | `image()`       | Should be exactly 1200px &times; 630px.                                                                                                                                         | Optional |
-| `tags`        | `string[]`      | Preferably use kebab-case for these.                                                                                                                                            | Optional |
-| `authors`     | `string[]`      | If the author has a profile, use the id associated with their Markdown file in `src/content/authors/` (e.g. if their file is named `jane-doe.md`, use `jane-doe` in the array). | Optional |
-| `draft`       | `boolean`       | Defaults to `false` if not provided.                                                                                                                                            | Optional |
+| 字段          | 类型 (Zod)      | 要求                                                                                                                                                                | 必填 |
+| ------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| `title`       | `string`        | 应该 ≤60 个字符                                                                                                                                                      | 是   |
+| `description` | `string`        | 应该 ≤155 个字符                                                                                                                                                     | 是   |
+| `date`        | `coerce.date()` | 必须是 `YYYY-MM-DD` 格式                                                                                                                                             | 是   |
+| `order`       | `number`        | 同一日期下子文章的排序，默认为 `0`                                                                                                                                    | 否   |
+| `image`       | `image()`       | 应该是 1200px × 630px                                                                                                                                               | 否   |
+| `tags`        | `string[]`      | 推荐使用 kebab-case 格式                                                                                                                                            | 否   |
+| `authors`     | `string[]`      | 如果作者有档案，使用其在 `src/content/authors/` 中的文件名 ID（例如文件名为 `zhang-san.md`，则在数组中使用 `zhang-san`）                                            | 否   |
+| `draft`       | `boolean`       | 默认为 `false`                                                                                                                                                      | 否   |
 
-### Authors
+### 作者档案字段说明
 
-Add author information in `src/content/authors/` as Markdown files. A file named `[author-name].md` can be associated with a blog post if `"author-name"` (the id) is added to the `authors` field:
-
-```yml
----
-name: 'enscribe'
-pronouns: 'he/him'
-avatar: 'https://gravatar.com/avatar/9bfdc4ec972793cf05cb91efce5f4aaaec2a0da1bf4ec34dad0913f1d845faf6.webp?size=256'
-bio: 'd(-_-)b'
-website: 'https://enscribe.dev'
-twitter: 'https://twitter.com/enscry'
-github: 'https://github.com/jktrn'
-mail: 'jason@enscribe.dev'
----
-```
-
-The author schema is defined as follows:
-
-| Field      | Type (Zod)                                 | Requirements                                                                                                                                                             | Required |
-| ---------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
-| `name`     | `string`                                   | n/a                                                                                                                                                                      | Yes      |
-| `pronouns` | `string`                                   | n/a                                                                                                                                                                      | Optional |
-| `avatar`   | `string.url()` or `string.startsWith('/')` | Should be either a valid URL or a path starting with `/`. Preferably use [Gravatar](https://en.gravatar.com/site/implement/images/) with the `?size=256` size parameter. | Yes      |
-| `bio`      | `string`                                   | n/a                                                                                                                                                                      | Optional |
-| `mail`     | `string.email()`                           | Must be a valid email address.                                                                                                                                           | Optional |
-| `website`  | `string.url()`                             | Must be a valid URL.                                                                                                                                                     | Optional |
-| `twitter`  | `string.url()`                             | Must be a valid URL.                                                                                                                                                     | Optional |
-| `github`   | `string.url()`                             | Must be a valid URL.                                                                                                                                                     | Optional |
-| `linkedin` | `string.url()`                             | Must be a valid URL.                                                                                                                                                     | Optional |
-| `discord`  | `string.url()`                             | Must be a valid URL.                                                                                                                                                     | Optional |
+| 字段       | 类型 (Zod)                                 | 要求                                                                                                                                                               | 必填 |
+| ---------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---- |
+| `name`     | `string`                                   | 无                                                                                                                                                                 | 是   |
+| `pronouns` | `string`                                   | 无                                                                                                                                                                 | 否   |
+| `avatar`   | `string.url()` or `string.startsWith('/')` | 应该是有效的 URL 或以 `/` 开头的路径。推荐使用 [Gravatar](https://en.gravatar.com/site/implement/images/) 并添加 `?size=256` 参数。                             | 是   |
+| `bio`      | `string`                                   | 无                                                                                                                                                                 | 否   |
+| `mail`     | `string.email()`                           | 必须是有效的邮箱地址                                                                                                                                               | 否   |
+| `website`  | `string.url()`                             | 必须是有效的 URL                                                                                                                                                   | 否   |
+| `twitter`  | `string.url()`                             | 必须是有效的 URL                                                                                                                                                   | 否   |
+| `github`   | `string.url()`                             | 必须是有效的 URL                                                                                                                                                   | 否   |
+| `linkedin` | `string.url()`                             | 必须是有效的 URL                                                                                                                                                   | 否   |
+| `discord`  | `string.url()`                             | 必须是有效的 URL                                                                                                                                                   | 否   |
 
 > [!TIP]
-> You can add as many social media links as you want, as long as you adjust the schema! Make sure you also support the new field in the `src/components/SocialIcons.astro` component.
+> 你可以添加任意数量的社交媒体链接，只要相应地调整 schema！确保在 `src/components/SocialIcons.astro` 组件中也支持新字段。
 
-### Projects
+## 提交 Pull Request
 
-Add projects in `src/content/projects/` as Markdown files:
+完成文章撰写后，按以下步骤提交：
+
+1. **提交更改**
+   
+   ```bash
+   git add .
+   git commit -m "添加新文章: 你的文章标题"
+   ```
+
+2. **推送到你的 Fork**
+   
+   ```bash
+   git push origin main
+   ```
+
+3. **创建 Pull Request**
+   
+   - 前往你的 GitHub 仓库页面
+   - 点击 "Compare & pull request" 按钮
+   - 填写 PR 标题和描述，说明你添加的内容
+   - 点击 "Create pull request"
+
+### PR 检查清单
+
+提交 PR 前，请确保：
+
+- [ ] 已添加个人作者档案（如果是首次贡献）
+- [ ] 文章 frontmatter 格式正确
+- [ ] 文章内容使用简体中文
+- [ ] 图片资源已正确放置在对应目录
+- [ ] 本地预览正常显示
+
+### 项目信息
+
+如果需要添加项目展示，在 `src/content/projects/` 目录下创建 Markdown 文件：
 
 ```yml
 ---
-name: 'Project A'
-description: 'This is an example project description! You should replace this with a description of your own project.'
-tags: ['Framework A', 'Library B', 'Tool C', 'Resource D']
+name: '项目 A'
+description: '这是一个示例项目描述！请替换为你自己项目的描述。'
+tags: ['框架 A', '库 B', '工具 C', '资源 D']
 image: '/static/1200x630.png'
 link: 'https://example.com'
 startDate: '2024-01-01'
@@ -258,23 +181,54 @@ endDate: '2024-01-01'
 ---
 ```
 
-The project schema is defined as follows:
+#### 项目字段说明
 
-| Field         | Type (Zod)      | Requirements                            | Required |
-| ------------- | --------------- | --------------------------------------- | -------- |
-| `name`        | `string`        | n/a                                     | Yes      |
-| `description` | `string`        | n/a                                     | Yes      |
-| `tags`        | `string[]`      | n/a                                     | Yes      |
-| `image`       | `image()`       | Should be exactly 1200px &times; 630px. | Yes      |
-| `link`        | `string.url()`  | Must be a valid URL.                    | Yes      |
-| `startDate`   | `coerce.date()` | Must be in `YYYY-MM-DD` format.         | Optional |
-| `endDate`     | `coerce.date()` | Must be in `YYYY-MM-DD` format.         | Optional |
+| 字段         | 类型 (Zod)      | 要求                           | 必填 |
+| ------------ | --------------- | ------------------------------ | ---- |
+| `name`       | `string`        | 无                             | 是   |
+| `description`| `string`        | 无                             | 是   |
+| `tags`       | `string[]`      | 无                             | 是   |
+| `image`      | `image()`       | 应该是 1200px × 630px          | 是   |
+| `link`       | `string.url()`  | 必须是有效的 URL               | 是   |
+| `startDate`  | `coerce.date()` | 必须是 `YYYY-MM-DD` 格式       | 否   |
+| `endDate`    | `coerce.date()` | 必须是 `YYYY-MM-DD` 格式       | 否   |
 
-## License
+## 写作指南
 
-This project is open source and available under the [MIT License](LICENSE).
+### 内容建议
 
----
+- 使用简体中文撰写
+- 主题应与技术、学术、开源等相关
+- 文章结构清晰，逻辑合理
+- 提供实用的代码示例和解决方案
+- 鼓励原创内容和个人见解
+
+### Markdown 功能
+
+博客支持以下 Markdown 扩展功能：
+
+- **MDX 组件**：可以在文章中使用 React 组件
+- **数学公式**：通过 KaTeX 渲染 LaTeX 数学公式
+- **代码高亮**：支持多种编程语言的语法高亮
+- **Callout 组件**：用于提示、警告等特殊内容块
+
+示例：
+
+```markdown
+> [!NOTE]
+> 这是一个提示框
+
+$$
+E = mc^2
+$$
+
+```javascript
+console.log('Hello, BITNP!');
+```
+
+## 许可证
+
+本项目基于 [MIT License](LICENSE) 开源。
 
 ### Star History
 
@@ -290,5 +244,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 Built with &hearts; by [enscribe](https://enscribe.dev)!
 
-[Stargazers]: https://img.shields.io/github/stars/jktrn/astro-erudite?color=fafafa&logo=github&logoColor=fff&style=for-the-badge
-[License]: https://img.shields.io/github/license/jktrn/astro-erudite?color=0a0a0a&logo=github&logoColor=fff&style=for-the-badge
+由 [BITNP](https://bitnp.net) 维护 ❤️
+
+[Stargazers]: https://img.shields.io/github/stars/BITNP/blog?color=fafafa&logo=github&logoColor=fff&style=for-the-badge
+[License]: https://img.shields.io/github/license/BITNP/blog?color=0a0a0a&logo=github&logoColor=fff&style=for-the-badge
