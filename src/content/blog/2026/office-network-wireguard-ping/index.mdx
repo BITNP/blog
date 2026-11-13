@@ -1,0 +1,73 @@
+---
+title: '办公室网络配置指南（二）：用 ping 同步 IPv6 地址'
+description: '办公室的 IPv6 地址变动后，如何通知校园网端更新 WireGuard 端点？一次利用 ICMPv6、nftables 和系统日志同步地址的折腾记录。'
+date: 2026-11-14
+tags: ['network', 'wireguard', 'ipv6', 'openwrt', 'nftables']
+authors: ['taskmgr818']
+draft: false
+---
+
+> **注：** 本文依赖于特定的网络环境，不具普适性，看个乐就好。
+
+## 新问题：办公室的 IPv6 地址会变
+
+[书接上文](https://blog.bitnp.net/blog/2026/office-network-wireguard-ipv6/)，我们成功穿透防火墙，建立了 WireGuard 连接，但还有一个小问题：办公室的 IPv6 地址可能会变动（校园网的不会变），而隧道两端必须知道对方的精确 IP，才能主动发包以“欺骗”防火墙放行回包。
+
+也就是说，我们需要某种方法，来让校园网端及时得知办公室端变动后的 IP。
+
+## 先看看常规方案
+
+最经典的方案显然是 DDNS。然而，WireGuard 通常需要手动重置端点以触发 DNS 解析，这意味着我们必须额外运行脚本来检查 DNS 变动。另外，校园网 DNS 的缓存时间较长，可能要几十分钟到数小时才会刷新。虽然一个小时的断连问题不大，但还是不够快↗乐↘
+
+除了 DNS，消息端点也是个不错的方案。无论是利用 Cloudflare Workers，还是直接使用公共消息端点，都能很好地满足需求。然而，实际找了一圈之后，我们并没有发现足够完美的选择：这些服务大多位于国外，在国内的连接性不佳；同时，其速率限制也比较严格，无法支持高频查询。
+
+正经的消息端点不通，那就再想想有没有不那么正经的，比如 GitHub 私有仓库——可惜国内访问性仍然不佳。
+
+要找一个两端都能访问、都能 ping 通的服务……
+
+## 等下，既然能 ping 通……
+
+欸，等下，说到 ping，之前测试的时候，校园网的 IPv6 是可以被外部 ping 通的！也就是说，办公室其实可以“直连”校园网！
+
+既然我们只需要传递办公室的 IP，那么校园网端只要收到 Echo Request，就已经从 IPv6 包头里拿到了办公室的新地址，甚至不需要办公室收到回复！
+
+只需要让办公室的软路由在自身 IP 变动时 ping 一下校园网内的软路由，再让校内软路由监听 ICMP 包，并根据收到的包的来源更新 WireGuard 配置，同步不就成功了吗？
+
+## 用 nftables 筛选并记录 ICMP 包
+
+有了思路，接下来的实现就很简单了——只需要写个脚本监听 ICMP 即可。
+
+不过 [@dongdigua](https://github.com/dongdigua) 表示，在用户态监听流量是很不优雅的行为，应该让内核态的 nftables 筛选包并打日志，再让用户态程序读取日志进行操作。
+
+我不明觉厉，不过 🍠 很快就完成了验证<del>，扔给我一团配置就赶作业去了</del>。在请出 GPT 大人简单分析后，我得到了以下配置：
+
+```text title="nftables 配置片段"
+define wg_knock_iid = ::1111:2222:3333:4444
+
+chain wg_knock_in {
+    type filter hook input priority filter - 5; policy accept;
+
+    iifname "eth2" icmpv6 type echo-request \
+        ip6 saddr & ::ffff:ffff:ffff:ffff == $wg_knock_iid \
+        limit rate 5/minute burst 5 packets log prefix "WG_KNOCK: "
+}
+```
+
+值得说明的是其中的**后缀匹配**：办公室的软路由拿到的是 `/64` 的 IPv6 前缀，地址的后 64 位是其自行分配的，一般不会变动（至少在我们的场景下没有变化）；而 64 位的随机值也避免了被人随手一 ping 就断网。
+
+当然，这一设计的安全性并没那么高。不过 WireGuard 本身也有双向密钥认证，就算真的受到攻击，也不会被劫持流量，到时候再在 ICMP 载荷里加入 HMAC 之类的签名校验即可。
+
+## 最后，用脚本串起来
+
+最后要做的就是写两个脚本，分别部署在两端：
+
+- 办公室端监视 IP 变动，触发时 ping 对端。
+- 校园网端监听系统日志，触发时修改 WireGuard 配置。
+
+没什么难度，让 GPT 大人代劳即可。
+
+## 思考：ping2intranet？
+
+经过以上配置，我们不难发现，这套流程不止适用于办公室连校园网——只需要简单修改脚本，我们就能在公网 IPv6 环境下，做到 `ping2intranet`。
+
+当然，不建议滥用，否则网信把 ICMP 封了就没得玩了（
